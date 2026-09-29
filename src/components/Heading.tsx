@@ -1,5 +1,4 @@
 import { createElement, type ReactNode } from 'react'
-import { childText, slugify } from '../text'
 
 type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -11,6 +10,5 @@ function clampLevel(level: number | undefined): number {
 
 export function Heading({ level, id, children }: { level?: number; id?: string; children?: ReactNode }) {
   const tag = `h${clampLevel(level)}` as HeadingTag
-  const anchor = id ?? slugify(childText(children))
-  return createElement(tag, { id: anchor, className: 'markdoc-heading' }, children)
+  return createElement(tag, { ...(id ? { id } : {}), className: 'markdoc-heading' }, children)
 }

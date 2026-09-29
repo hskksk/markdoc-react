@@ -5,7 +5,7 @@ export { MarkdocProvider, useMarkdocRuntime, type MarkdocRuntime } from './conte
 export { createMarkdocConfig } from './config/createConfig'
 export { builtinNodes } from './config/nodes'
 export { builtinTags } from './config/tags'
-export type { MarkdocExtensions } from './config/types'
+export type { CreateMarkdocConfigOptions, FenceTagMode, MarkdocExtensions } from './config/types'
 
 export { builtinComponents, type MarkdocComponentMap } from './components'
 export {
@@ -21,7 +21,7 @@ export {
   Tabs,
 } from './components'
 
-export { childDiagramSource, childText, escapeHtml, slugify, toErrorMessage } from './text'
+export { childText, slugify } from './text'
 
 export { createMermaidRenderer, type MermaidLike, type MermaidRenderResult } from './adapters/mermaid'
 export { createD2Renderer, type D2CompileResult, type D2Like } from './adapters/d2'

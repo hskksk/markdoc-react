@@ -1,10 +1,15 @@
+import type { CSSProperties } from 'react'
+
 export interface HighlightInput {
   code: string
   language?: string
 }
 
 export interface HighlightResult {
+  /** Inner HTML of the code element, not a wrapping `<pre>`. */
   html: string
+  className?: string
+  style?: CSSProperties
 }
 
 export type Highlighter = (input: HighlightInput) => HighlightResult | Promise<HighlightResult>

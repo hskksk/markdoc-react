@@ -1,5 +1,5 @@
 import { toErrorMessage } from '../text'
-import type { DiagramRenderer } from './types'
+import type { DiagramRenderer, DiagramTheme } from './types'
 
 export interface MermaidRenderResult {
   svg: string
@@ -13,14 +13,24 @@ export interface MermaidLike {
 
 let renderCount = 0
 
+function mermaidTheme(theme: DiagramTheme | undefined): string {
+  return theme === 'dark' ? 'dark' : 'default'
+}
+
 export function createMermaidRenderer(mermaid: MermaidLike): DiagramRenderer {
+  let appliedTheme: string | undefined
+
   return async ({ source, theme }) => {
     try {
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: 'loose',
-        theme: theme === 'dark' ? 'dark' : 'default',
-      })
+      const nextTheme = mermaidTheme(theme)
+      if (appliedTheme !== nextTheme) {
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: nextTheme,
+        })
+        appliedTheme = nextTheme
+      }
       renderCount += 1
       const result = await mermaid.render(`markdoc-diagram-${renderCount}`, source)
       return { svg: result.svg }

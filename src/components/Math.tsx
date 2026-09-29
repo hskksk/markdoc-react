@@ -13,6 +13,7 @@ export function Math({ display = true, children }: { display?: boolean; children
       setHtml(null)
       return
     }
+    setHtml(null)
     Promise.resolve(mathRenderer({ tex, display }))
       .then((value) => {
         if (!cancelled) setHtml(value)
@@ -28,13 +29,9 @@ export function Math({ display = true, children }: { display?: boolean; children
   const className = display ? 'markdoc-math markdoc-math--block' : 'markdoc-math markdoc-math--inline'
 
   if (html != null) {
-    return display
-      ? <div className={className} dangerouslySetInnerHTML={{ __html: html }} />
-      : <span className={className} dangerouslySetInnerHTML={{ __html: html }} />
+    return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />
   }
 
   const fallback = display ? `\\[${tex}\\]` : `\\(${tex}\\)`
-  return display
-    ? <div className={className}>{fallback}</div>
-    : <span className={className}>{fallback}</span>
+  return <span className={className}>{fallback}</span>
 }
