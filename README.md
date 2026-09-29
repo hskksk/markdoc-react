@@ -183,6 +183,52 @@ pnpm test
 pnpm build
 ```
 
+## Releases
+
+Pushes to `main` run [semantic-release](https://semantic-release.gitbook.io/) and
+publish to npm with the **`staging`** dist-tag (`pnpm add @hskksk/markdoc-react@staging`).
+GitHub Releases and `v*` tags are created automatically when a new version is
+published.
+
+Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/)
+(for example `feat: …`, `fix: …`). Releases are skipped when there is nothing
+to publish.
+
+### Starting at `0.0.1`
+
+semantic-release treats the last git tag as the previous version. With **no tags**,
+the baseline is `0.0.0`:
+
+| Commits since baseline | First version |
+| --- | --- |
+| `fix:` / `perf:` / … (patch) | `0.0.1` |
+| `feat:` (minor) | `0.1.0` |
+| `BREAKING CHANGE` | `1.0.0` |
+
+To align the first staging release with **`0.0.1`** when history already contains
+`feat:` commits, create a **`v0.0.0`** tag on the commit *before* those features
+(or on the current `main` tip and merge a `fix:` commit next). Example:
+
+```bash
+git tag v0.0.0 <commit-sha>
+git push origin v0.0.0
+```
+
+The next releasable `fix:` (or patch-level) commit on `main` will then publish
+`0.0.1` to `@staging`. You do not need to tag `v0.0.1` by hand.
+
+Install staging builds:
+
+```bash
+pnpm add @hskksk/markdoc-react@staging
+```
+
+Promote a version to **`latest`** when ready:
+
+```bash
+npm dist-tag add @hskksk/markdoc-react@<version> latest
+```
+
 ## License
 
 MIT

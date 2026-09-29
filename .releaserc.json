@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/semantic-release.json",
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": true,
+        "distTag": "staging",
+        "provenance": true
+      }
+    ],
+    "@semantic-release/github"
+  ]
+}
