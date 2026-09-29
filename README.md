@@ -43,11 +43,48 @@ export function DocumentView({ source }: { source: string }) {
 | `details` | `{% details summary="More" %}…{% /details %}` | `<details>` element |
 | `badge` | `{% badge type="success" %}new{% /badge %}` | inline |
 | `kbd` | `Press {% kbd %}⌘K{% /kbd %}` | inline |
-| `math` | `{% math %}E = mc^2{% /math %}` | `display=false` for inline |
-| `diagram` | `{% diagram %}` + fenced `mermaid` block | `type="d2"` also supported |
+| `math` | `{% math %}E = mc^2{% /math %}` | display math (`display` defaults to `true`). `display=false` for inline |
+| `diagram` | `{% diagram %}` + fenced block, `{% diagram source="..." /%}`, or a plain body | `type="d2"` or a `d2` fence. A fence keeps indentation; a plain body does not |
 
-Fences whose language is `md`, `markdown`, `markdoc`, or `mdoc` are treated as
-literal source, so example tags inside them are not executed.
+`{% math %}` renders a `<span>`, including when `display` is true, so it can sit
+inside a paragraph. `$...$` is not parsed.
+
+Block tags (`callout`, `tabs`, `details`, `diagram`) need to be their own block,
+with the body on the following lines. A single-line tag is inline Markdown, and
+the browser will not keep a block element inside a paragraph.
+
+### Fences and tags
+
+Tags inside a fence run only when both of these allow it:
+
+- The site passes `fenceTags="document"` (the default). `fenceTags="off"` renders
+  every fence as source. A document cannot turn that back on. This is a prop of
+  `MarkdocView` / `createMarkdocConfig`, not something the document can set.
+- The fence itself is not a literal example. Languages `md`, `markdown`,
+  `markdoc`, and `mdoc` are literal unless the fence says `{% process=true %}`.
+  Any fence can opt out with `{% process=false %}`.
+
+```ts {% process=false %}
+{% callout %}shown as text{% /callout %}
+```
+
+```md {% process=true %}
+{% callout %}this callout renders{% /callout %}
+```
+
+```tsx
+<MarkdocView source={source} fenceTags="off" />
+```
+
+Replacing `nodes.fence` in `config` opts out of this policy, because that
+replaces the built-in fence. `theme` is the Mermaid theme (`light` or `dark`).
+It does not change the stylesheet or the syntax highlighter. Set Shiki's theme
+on `createShikiRenderer`.
+
+Highlighted HTML and diagram SVG are inserted from the adapter you pass in.
+`createMermaidRenderer` initializes Mermaid with `securityLevel: 'strict'`.
+Treat that HTML as trusted to the same degree as the highlighter or diagram
+library. Markdoc itself escapes raw HTML in the document.
 
 ### Injecting highlighting, diagrams, and math
 
@@ -99,7 +136,12 @@ Extend the schema and the component map through the props:
 ```
 
 `config` accepts `nodes`, `tags`, `variables`, and `functions` and is merged on
-top of the built-ins.
+top of the built-ins. Partials are not resolved, and frontmatter is omitted
+from the rendered tree.
+
+`onError` receives a thrown transform error, or Markdoc's validation errors
+when the document is invalid. Validation errors do not stop rendering. The
+callback runs after render, not during it.
 
 ### Next.js
 
@@ -112,7 +154,10 @@ client, since Markdoc's renderable tree is serializable:
 import Markdoc from '@markdoc/markdoc'
 import { createMarkdocConfig } from '@hskksk/markdoc-react'
 
-const content = Markdoc.transform(Markdoc.parse(source), createMarkdocConfig())
+const content = Markdoc.transform(
+  Markdoc.parse(source),
+  createMarkdocConfig(undefined, { fenceTags: 'document' }),
+)
 // pass `content` to a client component and call Markdoc.renderers.react there
 ```
 

@@ -38,7 +38,22 @@
 .markdoc-table-wrap td {
   border: 1px solid var(--markdoc-border);
   padding: 0.4rem 0.6rem;
+  text-align: start;
+}
+
+.markdoc-table-wrap th[align='left'],
+.markdoc-table-wrap td[align='left'] {
   text-align: left;
+}
+
+.markdoc-table-wrap th[align='center'],
+.markdoc-table-wrap td[align='center'] {
+  text-align: center;
+}
+
+.markdoc-table-wrap th[align='right'],
+.markdoc-table-wrap td[align='right'] {
+  text-align: right;
 }
 
 .markdoc-code {
@@ -48,11 +63,19 @@
   padding: 0.75rem 1rem;
   margin: var(--markdoc-gap) 0;
   overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.875em;
+  white-space: pre;
 }
 
 .markdoc-code > code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: inherit;
+  white-space: inherit;
+}
+
+.markdoc-code--rich {
+  font-family: inherit;
+  white-space: normal;
 }
 
 .markdoc-callout {
