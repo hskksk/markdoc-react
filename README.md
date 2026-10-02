@@ -185,10 +185,15 @@ pnpm build
 
 ## Releases
 
-Pushes to `main` run [semantic-release](https://semantic-release.gitbook.io/) and
-publish to npm with the **`staging`** dist-tag (`pnpm add @hskksk/markdoc-react@staging`).
-GitHub Releases and `v*` tags are created automatically when a new version is
-published.
+Pushes to `main` run [semantic-release](https://semantic-release.gitbook.io/),
+then **`npm stage publish --tag staging`** (via `@semantic-release/exec`).
+The version is **not installable from the registry until a maintainer approves**
+it on [npmjs.com](https://www.npmjs.com/) or with `npm stage approve` (2FA).
+GitHub Releases and `v*` git tags are still created when CI succeeds.
+
+After approval, install with the **`staging`** dist-tag:
+
+`pnpm add @hskksk/markdoc-react@staging`
 
 Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/)
 (for example `feat: …`, `fix: …`). Releases are skipped when there is nothing
@@ -214,16 +219,10 @@ git tag v0.0.0 <commit-sha>
 git push origin v0.0.0
 ```
 
-The next releasable `fix:` (or patch-level) commit on `main` will then publish
-`0.0.1` to `@staging`. You do not need to tag `v0.0.1` by hand.
+The next releasable `fix:` (or patch-level) commit on `main` will then stage
+`0.0.1` for `@staging`. You do not need to tag `v0.0.1` by hand.
 
-Install staging builds:
-
-```bash
-pnpm add @hskksk/markdoc-react@staging
-```
-
-Promote a version to **`latest`** when ready:
+Promote an approved version to **`latest`** when ready:
 
 ```bash
 npm dist-tag add @hskksk/markdoc-react@<version> latest
@@ -231,17 +230,18 @@ npm dist-tag add @hskksk/markdoc-react@<version> latest
 
 ### npm authentication (CI)
 
-Release uses [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC)
-via `.releaserc.json` (`provenance: true`) and `.github/workflows/release-staging.yml`
-(Node **24+** for npm ≥ 11.5.1).
+CI uses [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) and
+**`npm stage publish`** from `.github/workflows/release-staging.yml` (Node **24+** for
+npm ≥ 11.5.1). Stage publish is allowed by default on Trusted Publishers; you do **not**
+need to enable direct **`npm publish`** for this workflow.
 
 On [npm → Package → Settings → Trusted Publisher](https://www.npmjs.com/package/@hskksk/markdoc-react/access),
-add a publisher that matches this repository and workflow file exactly (for example
-`hskksk/markdoc-react` and `release-staging.yml`). A mismatch surfaces as
-`OIDC token exchange error - package not found`.
+add a publisher that matches this repository and workflow filename exactly (`hskksk/markdoc-react`,
+`release-staging.yml`). Provenance is generated automatically for trusted publishing.
 
-As a fallback, set the repository secret **`NPM_TOKEN`** to an npm automation token with
-publish access. The workflow passes it only in the Release step.
+Do not set `registry-url` on `actions/setup-node` in this workflow (it can force token
+auth and break OIDC). `@semantic-release/npm` only bumps `package.json`; publishing is
+handled by `@semantic-release/exec` → `npm stage publish`.
 
 ## License
 

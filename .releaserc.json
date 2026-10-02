@@ -8,9 +8,13 @@
     [
       "@semantic-release/npm",
       {
-        "npmPublish": true,
-        "distTag": "staging",
-        "provenance": true
+        "npmPublish": false
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "publishCmd": "npm stage publish --access public --tag staging"
       }
     ],
     "@semantic-release/github"
