@@ -187,6 +187,9 @@ pnpm build
 
 Pushes to `main` run [semantic-release](https://semantic-release.gitbook.io/) and
 publish to npm with the **`staging`** dist-tag (`pnpm add @hskksk/markdoc-react@staging`).
+The dist-tag comes from `publishConfig.tag` in `package.json` (semantic-release
+still runs `npm publish`, with `--tag staging` — the workflow filename is only for
+npm Trusted Publisher matching, not the npm tag).
 GitHub Releases and `v*` tags are created automatically when a new version is
 published.
 

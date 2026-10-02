@@ -9,7 +9,6 @@
       "@semantic-release/npm",
       {
         "npmPublish": true,
-        "distTag": "staging",
         "provenance": true
       }
     ],
