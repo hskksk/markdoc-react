@@ -229,6 +229,20 @@ Promote a version to **`latest`** when ready:
 npm dist-tag add @hskksk/markdoc-react@<version> latest
 ```
 
+### npm authentication (CI)
+
+Release uses [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC)
+via `.releaserc.json` (`provenance: true`) and `.github/workflows/release-staging.yml`
+(Node **24+** for npm ≥ 11.5.1).
+
+On [npm → Package → Settings → Trusted Publisher](https://www.npmjs.com/package/@hskksk/markdoc-react/access),
+add a publisher that matches this repository and workflow file exactly (for example
+`hskksk/markdoc-react` and `release-staging.yml`). A mismatch surfaces as
+`OIDC token exchange error - package not found`.
+
+As a fallback, set the repository secret **`NPM_TOKEN`** to an npm automation token with
+publish access. The workflow passes it only in the Release step.
+
 ## License
 
 MIT
