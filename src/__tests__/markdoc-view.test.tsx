@@ -9,6 +9,7 @@ import {
   createKatexRenderer,
   createMermaidRenderer,
   createShikiRenderer,
+  normalizeVegaLiteSpec,
 } from '../index'
 import type { ChartRenderer, DiagramRenderer, GraphRenderer, Highlighter } from '../index'
 
@@ -393,6 +394,23 @@ describe('adapters', () => {
     expect(dispose).toHaveBeenCalled()
     expect(bad.error).toMatch(/Invalid JSON/)
     expect(missing.error).toMatch(/vega-lite/)
+  })
+
+  it('vega-lite normalization fills the chart canvas by default', () => {
+    const container = document.createElement('div')
+    Object.defineProperty(container, 'clientWidth', { value: 720, configurable: true })
+    Object.defineProperty(container, 'clientHeight', { value: 0, configurable: true })
+
+    const normalized = normalizeVegaLiteSpec({ mark: 'bar', encoding: {} }, { height: '320' }, container, 720)
+
+    expect(normalized.width).toBe(720)
+    expect(normalized.height).toBe(320)
+    expect(normalized.autosize).toMatchObject({ type: 'fit', resize: true })
+
+    const custom = normalizeVegaLiteSpec({ width: 400, height: 200, autosize: false }, { height: '320' }, container, 720)
+    expect(custom.width).toBe(400)
+    expect(custom.height).toBe(200)
+    expect(custom.autosize).toBe(false)
   })
 
   it('cytoscape graph handler mounts elements and destroys on dispose', async () => {

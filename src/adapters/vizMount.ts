@@ -17,7 +17,7 @@ async function mountWithHandler<E extends string>(
   engineLabel: string,
   container: HTMLElement,
   source: string,
-  theme: DiagramTheme | undefined,
+  context: { theme?: DiagramTheme; height?: string },
 ): Promise<VizMountResult> {
   const handler = handlers[engine]
   if (!handler) {
@@ -32,7 +32,7 @@ async function mountWithHandler<E extends string>(
   }
 
   try {
-    const handle = await handler(container, parsed, { theme })
+    const handle = await handler(container, parsed, context)
     return { handle }
   } catch (cause) {
     return { error: toErrorMessage(cause) }
@@ -40,9 +40,17 @@ async function mountWithHandler<E extends string>(
 }
 
 export function createChartRenderer(handlers: Partial<Record<ChartEngine, ChartHandler>>): ChartRenderer {
-  return (input, container) => mountWithHandler(handlers, input.engine, 'chart', container, input.source, input.theme)
+  return (input, container) =>
+    mountWithHandler(handlers, input.engine, 'chart', container, input.source, {
+      theme: input.theme,
+      height: input.height,
+    })
 }
 
 export function createGraphRenderer(handlers: Partial<Record<GraphEngine, GraphHandler>>): GraphRenderer {
-  return (input, container) => mountWithHandler(handlers, input.engine, 'graph', container, input.source, input.theme)
+  return (input, container) =>
+    mountWithHandler(handlers, input.engine, 'graph', container, input.source, {
+      theme: input.theme,
+      height: input.height,
+    })
 }

@@ -29,7 +29,12 @@ export { createMermaidRenderer, type MermaidLike, type MermaidRenderResult } fro
 export { createD2Renderer, type D2CompileResult, type D2Like } from './adapters/d2'
 export { createChartRenderer, createGraphRenderer } from './adapters/vizMount'
 export { createEChartsChartHandler, type EChartsInstanceLike, type EChartsLike } from './adapters/echarts'
-export { createVegaLiteChartHandler, type VegaEmbedLike, type VegaEmbedResultLike } from './adapters/vegaLite'
+export {
+  createVegaLiteChartHandler,
+  normalizeVegaLiteSpec,
+  type VegaEmbedLike,
+  type VegaEmbedResultLike,
+} from './adapters/vegaLite'
 export { createCytoscapeGraphHandler, type CytoscapeInstanceLike, type CytoscapeLike } from './adapters/cytoscape'
 export { createHighlightJsRenderer, type HighlightJsLike } from './adapters/highlightjs'
 export { createShikiRenderer, type ShikiHighlighterLike, type ShikiRendererOptions } from './adapters/shiki'
@@ -54,5 +59,6 @@ export type {
   MathInput,
   MathRenderer,
   VizHandle,
+  VizHandlerContext,
   VizMountResult,
 } from './adapters/types'
