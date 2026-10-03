@@ -8,6 +8,7 @@ export interface EChartsInstanceLike {
 
 export interface EChartsLike {
   init: (dom: HTMLElement, theme?: string | object | null, opts?: { renderer?: string }) => EChartsInstanceLike
+  getInstanceByDom?: (dom: HTMLElement) => EChartsInstanceLike | undefined
 }
 
 function echartsThemeName(theme: DiagramTheme | undefined): string | undefined {
@@ -16,6 +17,7 @@ function echartsThemeName(theme: DiagramTheme | undefined): string | undefined {
 
 export function createEChartsChartHandler(echarts: EChartsLike): ChartHandler {
   return (container, spec, { theme }) => {
+    echarts.getInstanceByDom?.(container)?.dispose()
     const instance = echarts.init(container, echartsThemeName(theme), { renderer: 'canvas' })
     instance.setOption(spec)
     const handle: VizHandle = {
