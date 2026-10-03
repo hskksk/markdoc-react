@@ -3,11 +3,10 @@ import type {
   ChartEngine,
   ChartHandler,
   ChartRenderer,
-  DiagramTheme,
   GraphEngine,
   GraphHandler,
   GraphRenderer,
-  VizHandle,
+  VizHandlerContext,
   VizMountResult,
 } from './types'
 
@@ -17,7 +16,7 @@ async function mountWithHandler<E extends string>(
   engineLabel: string,
   container: HTMLElement,
   source: string,
-  context: { theme?: DiagramTheme; height?: string },
+  context: VizHandlerContext,
 ): Promise<VizMountResult> {
   const handler = handlers[engine]
   if (!handler) {
