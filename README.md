@@ -45,11 +45,13 @@ export function DocumentView({ source }: { source: string }) {
 | `kbd` | `Press {% kbd %}⌘K{% /kbd %}` | inline |
 | `math` | `{% math %}E = mc^2{% /math %}` | display math (`display` defaults to `true`). `display=false` for inline |
 | `diagram` | `{% diagram %}` + fenced block, `{% diagram source="..." /%}`, or a plain body | `type="d2"` or a `d2` fence. A fence keeps indentation; a plain body does not |
+| `chart` | `{% chart engine="echarts" %}` + JSON fence or body | `engine` is `echarts` or `vega-lite`. Optional `height` (e.g. `360` or `40vh`) |
+| `graph` | `{% graph engine="cytoscape" %}` + JSON fence or body | `engine` is `cytoscape`. Optional `height` |
 
 `{% math %}` renders a `<span>`, including when `display` is true, so it can sit
 inside a paragraph. `$...$` is not parsed.
 
-Block tags (`callout`, `tabs`, `details`, `diagram`) need to be their own block,
+Block tags (`callout`, `tabs`, `details`, `diagram`, `chart`, `graph`) need to be their own block,
 with the body on the following lines. A single-line tag is inline Markdown, and
 the browser will not keep a block element inside a paragraph.
 
@@ -81,7 +83,7 @@ replaces the built-in fence. `theme` is the Mermaid theme (`light` or `dark`).
 It does not change the stylesheet or the syntax highlighter. Set Shiki's theme
 on `createShikiRenderer`.
 
-Highlighted HTML and diagram SVG are inserted from the adapter you pass in.
+Highlighted HTML, diagram SVG, and chart/graph canvases are inserted from the adapters you pass in.
 `createMermaidRenderer` initializes Mermaid with `securityLevel: 'strict'`.
 Treat that HTML as trusted to the same degree as the highlighter or diagram
 library. Markdoc itself escapes raw HTML in the document.
@@ -97,9 +99,23 @@ import mermaid from 'mermaid'
 import hljs from 'highlight.js'
 
 const diagramRenderer = createMermaidRenderer(mermaid)
+const chartRenderer = createChartRenderer({
+  echarts: createEChartsChartHandler(echarts),
+  'vega-lite': createVegaLiteChartHandler(vegaEmbed),
+})
+const graphRenderer = createGraphRenderer({
+  cytoscape: createCytoscapeGraphHandler(cytoscape),
+})
 const highlighter = createHighlightJsRenderer(hljs)
 
-<MarkdocView source={source} highlighter={highlighter} diagramRenderer={diagramRenderer} theme="dark" />
+<MarkdocView
+  source={source}
+  highlighter={highlighter}
+  diagramRenderer={diagramRenderer}
+  chartRenderer={chartRenderer}
+  graphRenderer={graphRenderer}
+  theme="dark"
+/>
 ```
 
 Available adapters:
@@ -108,12 +124,20 @@ Available adapters:
 | --- | --- |
 | `createMermaidRenderer(mermaid)` | `mermaid` default export |
 | `createD2Renderer(new D2())` | `@terrastruct/d2` instance |
+| `createChartRenderer({ echarts, 'vega-lite' })` | `echarts`, `vega-embed` (+ `vega`, `vega-lite` peers) |
+| `createGraphRenderer({ cytoscape })` | `cytoscape` default export |
 | `createHighlightJsRenderer(hljs)` | `highlight.js` default export |
 | `createShikiRenderer(highlighter, { theme })` | `shiki` highlighter |
 | `createKatexRenderer(katex)` | `katex` default export |
 
 Without an adapter the components degrade gracefully: fences render as escaped
-code, diagrams show their source with a message, and math shows its TeX source.
+code, diagrams show their source with a message, charts and graphs show JSON
+source with a message, and math shows its TeX source.
+
+Chart and graph tags accept **JSON only** (no executable JavaScript). Each
+`engine` handler receives the parsed object: an ECharts `option`, a Vega-Lite
+spec, or a Cytoscape options object (with `elements`, plus optional `style` /
+`layout`).
 
 ### App-specific tags
 

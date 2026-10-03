@@ -274,3 +274,37 @@
   font-size: 0.85em;
   margin-top: 0.5rem;
 }
+
+.markdoc-chart,
+.markdoc-graph {
+  margin: var(--markdoc-gap) 0;
+}
+
+.markdoc-chart__canvas,
+.markdoc-graph__canvas {
+  width: 100%;
+  min-height: 16rem;
+  border: 1px solid var(--markdoc-border);
+  border-radius: var(--markdoc-radius);
+  background: var(--markdoc-surface);
+}
+
+.markdoc-chart__source,
+.markdoc-graph__source {
+  text-align: left;
+  background: var(--markdoc-surface);
+  border: 1px solid var(--markdoc-border);
+  border-radius: var(--markdoc-radius);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin-top: 0.5rem;
+}
+
+.markdoc-chart__error,
+.markdoc-graph__error {
+  display: block;
+  color: #ef4444;
+  font-size: 0.85em;
+  margin-top: 0.5rem;
+}
