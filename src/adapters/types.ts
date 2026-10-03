@@ -65,16 +65,22 @@ export interface GraphInput {
   height?: string
 }
 
+export interface VizHandlerContext {
+  theme?: DiagramTheme
+  /** Tag `height` attribute (e.g. `320` or `40vh`). */
+  height?: string
+}
+
 export type ChartHandler = (
   container: HTMLElement,
   spec: unknown,
-  context: { theme?: DiagramTheme },
+  context: VizHandlerContext,
 ) => Promise<VizHandle> | VizHandle
 
 export type GraphHandler = (
   container: HTMLElement,
   spec: unknown,
-  context: { theme?: DiagramTheme },
+  context: VizHandlerContext,
 ) => Promise<VizHandle> | VizHandle
 
 export type ChartRenderer = (input: ChartInput, container: HTMLElement) => Promise<VizMountResult>

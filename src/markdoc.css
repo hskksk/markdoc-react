@@ -289,6 +289,19 @@
   background: var(--markdoc-surface);
 }
 
+.markdoc-chart--vega-lite .markdoc-chart__canvas {
+  display: block;
+  overflow: hidden;
+}
+
+.markdoc-chart--vega-lite .markdoc-chart__canvas .vega-embed,
+.markdoc-chart--vega-lite .markdoc-chart__canvas .vega-embed summary,
+.markdoc-chart--vega-lite .markdoc-chart__canvas .vega-embed .chart-wrapper,
+.markdoc-chart--vega-lite .markdoc-chart__canvas .vega-embed svg {
+  width: 100% !important;
+  max-width: 100%;
+}
+
 .markdoc-chart__source,
 .markdoc-graph__source {
   text-align: left;

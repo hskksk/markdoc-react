@@ -139,6 +139,10 @@ Chart and graph tags accept **JSON only** (no executable JavaScript). Each
 spec, or a Cytoscape options object (with `elements`, plus optional `style` /
 `layout`).
 
+Vega-Lite specs omitting `width` / `height` default to **`width: "container"`**
+and the tag's `height` (or `"container"`), with `autosize` enabled so the chart
+fills the canvas and responds to layout changes.
+
 ### App-specific tags
 
 Extend the schema and the component map through the props:
