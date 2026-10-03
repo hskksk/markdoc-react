@@ -37,3 +37,45 @@ export interface MathInput {
 export type MathRenderer = (input: MathInput) => string | Promise<string>
 
 export type DiagramTheme = 'light' | 'dark'
+
+export interface VizHandle {
+  dispose: () => void
+  resize?: () => void
+}
+
+export interface VizMountResult {
+  handle?: VizHandle
+  error?: string
+}
+
+export type ChartEngine = 'echarts' | 'vega-lite'
+export type GraphEngine = 'cytoscape'
+
+export interface ChartInput {
+  engine: ChartEngine
+  source: string
+  theme?: DiagramTheme
+  height?: string
+}
+
+export interface GraphInput {
+  engine: GraphEngine
+  source: string
+  theme?: DiagramTheme
+  height?: string
+}
+
+export type ChartHandler = (
+  container: HTMLElement,
+  spec: unknown,
+  context: { theme?: DiagramTheme },
+) => Promise<VizHandle> | VizHandle
+
+export type GraphHandler = (
+  container: HTMLElement,
+  spec: unknown,
+  context: { theme?: DiagramTheme },
+) => Promise<VizHandle> | VizHandle
+
+export type ChartRenderer = (input: ChartInput, container: HTMLElement) => Promise<VizMountResult>
+export type GraphRenderer = (input: GraphInput, container: HTMLElement) => Promise<VizMountResult>

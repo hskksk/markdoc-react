@@ -1,8 +1,16 @@
 import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { MarkdocView, createKatexRenderer, createMermaidRenderer, createShikiRenderer } from '../index'
-import type { DiagramRenderer, Highlighter } from '../index'
+import {
+  MarkdocView,
+  createChartRenderer,
+  createCytoscapeGraphHandler,
+  createEChartsChartHandler,
+  createKatexRenderer,
+  createMermaidRenderer,
+  createShikiRenderer,
+} from '../index'
+import type { ChartRenderer, DiagramRenderer, GraphRenderer, Highlighter } from '../index'
 
 const css = readFileSync('src/markdoc.css', 'utf8')
 
@@ -185,6 +193,76 @@ describe('MarkdocView', () => {
     expect(errors.join('\n')).not.toContain('validateDOMNesting')
   })
 
+  it('falls back when chart and graph renderers are missing', () => {
+    render(
+      <MarkdocView
+        source={'{% chart engine="echarts" %}\n```json\n{"series":[]}\n```\n{% /chart %}'}
+      />,
+    )
+
+    expect(screen.getByText('No chart renderer configured')).toBeInTheDocument()
+    expect(screen.getByText(/"series"/)).toBeInTheDocument()
+
+    render(
+      <MarkdocView
+        source={'{% graph engine="cytoscape" %}\n```json\n{"elements":[]}\n```\n{% /graph %}'}
+      />,
+    )
+
+    expect(screen.getByText('No graph renderer configured')).toBeInTheDocument()
+  })
+
+  it('mounts chart and graph output through injected renderers', async () => {
+    const chartRenderer: ChartRenderer = vi.fn(async (_input, container) => {
+      container.innerHTML = '<div data-testid="chart-output">chart</div>'
+      return { handle: { dispose: vi.fn() } }
+    })
+    const graphRenderer: GraphRenderer = vi.fn(async (_input, container) => {
+      container.innerHTML = '<div data-testid="graph-output">graph</div>'
+      return { handle: { dispose: vi.fn() } }
+    })
+
+    const { rerender } = render(
+      <MarkdocView
+        source={'{% chart engine="vega-lite" height="400" %}\n```json\n{"mark":"bar"}\n```\n{% /chart %}'}
+        chartRenderer={chartRenderer}
+      />,
+    )
+
+    expect(await screen.findByTestId('chart-output')).toBeInTheDocument()
+    expect(chartRenderer).toHaveBeenCalledWith(
+      expect.objectContaining({ engine: 'vega-lite', source: '{"mark":"bar"}', height: '400' }),
+      expect.any(HTMLElement),
+    )
+
+    rerender(
+      <MarkdocView
+        source={'{% graph engine="cytoscape" %}\n{"elements":[{"data":{"id":"a"}}]}\n{% /graph %}'}
+        graphRenderer={graphRenderer}
+      />,
+    )
+
+    expect(await screen.findByTestId('graph-output')).toBeInTheDocument()
+    expect(graphRenderer).toHaveBeenCalledWith(
+      expect.objectContaining({ engine: 'cytoscape' }),
+      expect.any(HTMLElement),
+    )
+  })
+
+  it('rejects unknown chart engines at validation time', () => {
+    const onError = vi.fn()
+
+    render(
+      <MarkdocView
+        source={'{% chart engine="cytoscape" source="{}" /%}'}
+        onError={onError}
+      />,
+    )
+
+    expect(onError).toHaveBeenCalled()
+    expect(JSON.stringify(onError.mock.calls[0]?.[0])).toContain('engine')
+  })
+
   it('renders a diagram from a source attribute or a plain body', async () => {
     const diagramRenderer: DiagramRenderer = vi.fn(async () => ({ svg: '<svg data-testid="diagram"></svg>' }))
     const { rerender } = render(
@@ -288,5 +366,51 @@ describe('adapters', () => {
     })
 
     expect(renderer({ tex: 'x^2', display: true })).toBe('<span>x^2</span>')
+  })
+
+  it('chart renderer parses json and dispatches to engine handlers', async () => {
+    const dispose = vi.fn()
+    const init = vi.fn(() => ({
+      setOption: vi.fn(),
+      dispose,
+      resize: vi.fn(),
+    }))
+    const chartRenderer = createChartRenderer({
+      echarts: createEChartsChartHandler({ init }),
+    })
+    const container = document.createElement('div')
+
+    const ok = await chartRenderer(
+      { engine: 'echarts', source: '{"series":[{"type":"line","data":[1]}]}', theme: 'dark' },
+      container,
+    )
+    const bad = await chartRenderer({ engine: 'echarts', source: '{not json', theme: 'light' }, container)
+    const missing = await chartRenderer({ engine: 'vega-lite', source: '{}', theme: 'light' }, container)
+
+    expect(ok.handle).toBeDefined()
+    expect(init).toHaveBeenCalledWith(container, 'dark', { renderer: 'canvas' })
+    ok.handle?.dispose()
+    expect(dispose).toHaveBeenCalled()
+    expect(bad.error).toMatch(/Invalid JSON/)
+    expect(missing.error).toMatch(/vega-lite/)
+  })
+
+  it('cytoscape graph handler mounts elements and destroys on dispose', async () => {
+    const destroy = vi.fn()
+    const cytoscape = vi.fn(() => ({ destroy, resize: vi.fn() }))
+    const handler = createCytoscapeGraphHandler(cytoscape)
+    const container = document.createElement('div')
+
+    const handle = await Promise.resolve(
+      handler(
+        container,
+        { elements: [{ data: { id: 'a' } }], style: [{ selector: 'node', style: { label: 'data(id)' } }] },
+        {},
+      ),
+    )
+
+    expect(cytoscape).toHaveBeenCalledWith(expect.objectContaining({ container }))
+    handle.dispose()
+    expect(destroy).toHaveBeenCalled()
   })
 })

@@ -29,6 +29,8 @@ export function MarkdocView({
   onError,
   highlighter,
   diagramRenderer,
+  chartRenderer,
+  graphRenderer,
   mathRenderer,
   theme,
 }: MarkdocViewProps) {
@@ -38,8 +40,8 @@ export function MarkdocView({
     [components],
   )
   const runtime = useMemo<MarkdocRuntime>(
-    () => ({ highlighter, diagramRenderer, mathRenderer, theme }),
-    [highlighter, diagramRenderer, mathRenderer, theme],
+    () => ({ highlighter, diagramRenderer, chartRenderer, graphRenderer, mathRenderer, theme }),
+    [highlighter, diagramRenderer, chartRenderer, graphRenderer, mathRenderer, theme],
   )
 
   const rendered = useMemo(() => {

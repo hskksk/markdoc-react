@@ -1,19 +1,5 @@
 import { Tag, type Config, type Node, type Schema } from '@markdoc/markdoc'
-
-function plainText(node: Node): string {
-  if (node.type === 'text' || node.type === 'code') {
-    return typeof node.attributes.content === 'string' ? node.attributes.content : ''
-  }
-  if (node.type === 'softbreak' || node.type === 'hardbreak') return '\n'
-  return node.children.map(plainText).join('')
-}
-
-function diagramFence(node: Node): Node | undefined {
-  return node.children.find((child) => {
-    if (child.type !== 'fence') return false
-    return typeof child.attributes.content === 'string' && child.attributes.content.trim().length > 0
-  })
-}
+import { firstContentFence, resolveBlockSource } from './blockSource'
 
 export const callout: Schema = {
   render: 'Callout',
@@ -75,7 +61,7 @@ export const diagram: Schema = {
   },
   transform(node: Node, config: Config) {
     const attributes = node.transformAttributes(config)
-    const fence = diagramFence(node)
+    const fence = firstContentFence(node)
     const lang = typeof fence?.attributes.language === 'string' ? fence.attributes.language : undefined
     const explicit = node.attributes.type
     const type = explicit === 'd2' || explicit === 'mermaid'
@@ -84,26 +70,48 @@ export const diagram: Schema = {
         ? 'd2'
         : 'mermaid'
 
-    let source: string | undefined
-    const fenceSource = fence?.attributes.content
-    const attributeSource = node.attributes.source
-    if (typeof fenceSource === 'string' && fenceSource.trim()) {
-      source = fenceSource
-    } else if (typeof attributeSource === 'string' && attributeSource.trim()) {
-      source = attributeSource
-    } else {
-      const body = node.children
-        .filter((child) => child.type !== 'fence')
-        .map(plainText)
-        .join('\n')
-        .trim()
-      if (body) source = body
-    }
-
+    const source = resolveBlockSource(node)
     const next: Record<string, unknown> = { ...attributes, type }
     if (source) next.source = source
     else delete next.source
     return new Tag('Diagram', next, [])
+  },
+}
+
+function jsonBlockTag(name: 'Chart' | 'Graph'): Schema {
+  return {
+    render: name,
+    attributes: {
+      engine: { type: String, required: true },
+      source: { type: String },
+      height: { type: String },
+    },
+    transform(node: Node, config: Config) {
+      const attributes = node.transformAttributes(config)
+      const source = resolveBlockSource(node)
+      const next: Record<string, unknown> = { ...attributes }
+      if (source) next.source = source
+      else delete next.source
+      return new Tag(name, next, [])
+    },
+  }
+}
+
+export const chart: Schema = {
+  ...jsonBlockTag('Chart'),
+  attributes: {
+    engine: { type: String, required: true, matches: ['echarts', 'vega-lite'] },
+    source: { type: String },
+    height: { type: String },
+  },
+}
+
+export const graph: Schema = {
+  ...jsonBlockTag('Graph'),
+  attributes: {
+    engine: { type: String, required: true, matches: ['cytoscape'] },
+    source: { type: String },
+    height: { type: String },
   },
 }
 
@@ -116,4 +124,6 @@ export const builtinTags: Record<string, Schema> = {
   kbd,
   math,
   diagram,
+  chart,
+  graph,
 }
