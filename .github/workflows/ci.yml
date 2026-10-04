@@ -14,15 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: hskksk/gh-actions/setup-pnpm@v1
         with:
-          version: 10.28.1
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - run: pnpm install --frozen-lockfile
+          pnpm-version: "10.28.1"
+          node-version: "22"
+          install: "true"
+          frozen-lockfile: "true"
 
       - run: pnpm run typecheck
 
