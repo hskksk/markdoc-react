@@ -1,0 +1,25 @@
+name: opencode
+
+# /oc, /opencode — build (PR など). /oci, /oca, /oc-issue, /oc-ask — github-reply 調査用。
+# Secrets: OPENCODE_API_KEY, OPENCODE_GO_API_KEY
+# Variable: OPENCODE_TRIGGER_ALLOWLIST（カンマ区切りの追加トリガー許可ログイン）
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  opencode:
+    uses: hskksk/gh-actions/.github/workflows/opencode.yml@v1
+    secrets: inherit
+    with:
+      toolchain: pnpm
+      pnpm-version: "10.28.1"
+      node-version: "22"
+      trigger-allowlist: ${{ vars.OPENCODE_TRIGGER_ALLOWLIST }}
