@@ -23,7 +23,8 @@ export {
   Tabs,
 } from './components'
 
-export { childText, slugify } from './text'
+export { childText } from './childText'
+export { slugify } from './slugify'
 
 export { createMermaidRenderer, type MermaidLike, type MermaidRenderResult } from './adapters/mermaid'
 export { createD2Renderer, type D2CompileResult, type D2Like } from './adapters/d2'

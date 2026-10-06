@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
 import type { HighlightResult } from '../adapters/types'
 import { useMarkdocRuntime } from '../context/MarkdocProvider'
-import { childText } from '../text'
+import { childText } from '../childText'
 
 export function CodeFence({
   content,

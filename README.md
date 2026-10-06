@@ -175,12 +175,17 @@ callback runs after render, not during it.
 
 `MarkdocView` is a client component. In App Router, mark the file that uses it
 with `"use client"`. You can also transform on the server and render on the
-client, since Markdoc's renderable tree is serializable:
+client, since Markdoc's renderable tree is serializable.
+
+Import the server-safe entry from `@hskksk/markdoc-react/server` for the
+server-side transform. It exports `createMarkdocConfig`, the built-in `nodes` /
+`tags`, and the `slugify` helper **without** a `"use client"` boundary, so it
+does not pull the React components or adapters into the server or RSC graph:
 
 ```tsx
 // server
 import Markdoc from '@markdoc/markdoc'
-import { createMarkdocConfig } from '@hskksk/markdoc-react'
+import { createMarkdocConfig } from '@hskksk/markdoc-react/server'
 
 const content = Markdoc.transform(
   Markdoc.parse(source),
