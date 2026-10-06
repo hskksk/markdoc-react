@@ -214,14 +214,16 @@ pnpm build
 ## Releases
 
 Pushes to `main` run [semantic-release](https://semantic-release.gitbook.io/),
-then **`npm stage publish --tag staging`** (via `@semantic-release/exec`).
+then **`npm stage publish --tag latest`** (via `@semantic-release/exec`).
 The version is **not installable from the registry until a maintainer approves**
 it on [npmjs.com](https://www.npmjs.com/) or with `npm stage approve` (2FA).
 GitHub Releases and `v*` git tags are still created when CI succeeds.
 
-After approval, install with the **`staging`** dist-tag:
+After approval, install the **`latest`** dist-tag (default):
 
-`pnpm add @hskksk/markdoc-react@staging`
+`pnpm add @hskksk/markdoc-react`
+
+You can still pin an exact version, for example `pnpm add @hskksk/markdoc-react@0.4.2`.
 
 Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/)
 (for example `feat: …`, `fix: …`). Releases are skipped when there is nothing
@@ -238,7 +240,7 @@ the baseline is `0.0.0`:
 | `feat:` (minor) | `0.1.0` |
 | `BREAKING CHANGE` | `1.0.0` |
 
-To align the first staging release with **`0.0.1`** when history already contains
+To align the first release with **`0.0.1`** when history already contains
 `feat:` commits, create a **`v0.0.0`** tag on the commit *before* those features
 (or on the current `main` tip and merge a `fix:` commit next). Example:
 
@@ -248,13 +250,7 @@ git push origin v0.0.0
 ```
 
 The next releasable `fix:` (or patch-level) commit on `main` will then stage
-`0.0.1` for `@staging`. You do not need to tag `v0.0.1` by hand.
-
-Promote an approved version to **`latest`** when ready:
-
-```bash
-npm dist-tag add @hskksk/markdoc-react@<version> latest
-```
+`0.0.1` on **`latest`**. You do not need to tag `v0.0.1` by hand.
 
 ### npm authentication (CI)
 
