@@ -16,7 +16,7 @@ if (!source.startsWith('"use client"')) {
 
 // The `/server` entry must stay free of the client boundary so RSC and other
 // server runtimes can call `createMarkdocConfig` without pulling in React.
-const reactImport = /(?:from|require\()\s*['"]react(?:-dom)?['"]/
+const reactImport = /(?:from|require\()\s*['"]react(?:-dom)?(?:\/[^'"]*)?['"]/
 
 async function assertServerSafe(file, seen = new Set()) {
   if (seen.has(file)) return

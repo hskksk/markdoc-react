@@ -194,7 +194,6 @@ const content = Markdoc.transform(
 // pass `content` to a client component and call Markdoc.renderers.react there
 ```
 
-
 ## Streaming LLM output
 
 `MarkdocView` parses whole documents. For token-by-token streaming (tags mixed
