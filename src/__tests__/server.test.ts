@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   builtinNodes,
   builtinTags,
+  childText,
   createFenceSchema,
   createMarkdocConfig,
   slugify,
@@ -14,6 +15,7 @@ describe('server entry', () => {
     expect(builtinNodes.heading).toBeDefined()
     expect(typeof createFenceSchema).toBe('function')
     expect(slugify('Hello World')).toBe('hello-world')
+    expect(childText({ props: { children: ['server', ' ', 'safe'] } })).toBe('server safe')
   })
 
   it('transforms a document to a renderable tree without React', () => {

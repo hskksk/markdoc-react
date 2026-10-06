@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useMarkdocRuntime } from '../context/MarkdocProvider'
-import { childText } from '../text'
+import { childText } from '../childText'
 
 export function Math({ display = true, children }: { display?: boolean; children?: ReactNode }) {
   const tex = childText(children).trim()

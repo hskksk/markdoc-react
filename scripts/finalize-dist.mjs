@@ -1,10 +1,11 @@
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = resolve(root, 'dist')
 const entry = resolve(dist, 'index.js')
+const serverEntry = resolve(dist, 'server.js')
 
 await mkdir(dist, { recursive: true })
 await copyFile(resolve(root, 'src/markdoc.css'), resolve(dist, 'markdoc.css'))
@@ -16,21 +17,37 @@ if (!source.startsWith('"use client"')) {
 
 // The `/server` entry must stay free of the client boundary so RSC and other
 // server runtimes can call `createMarkdocConfig` without pulling in React.
-const reactImport = /(?:from|require\()\s*['"]react(?:-dom)?(?:\/[^'"]*)?['"]/
+const reactImport = /^(?:react|react-dom)(?:\/|$)/
+const moduleSpecifier = /\b(?:from\s*|import\s*\(\s*|require\s*\(\s*|import\s*)['"]([^'"]+)['"]/g
 
-async function assertServerSafe(file, seen = new Set()) {
+async function assertServerSafe(file, { entry = false, seen = new Set() } = {}) {
   if (seen.has(file)) return
   seen.add(file)
   const code = await readFile(file, 'utf8')
-  if (file.endsWith('server.js') && code.startsWith('"use client"')) {
+  if (entry && code.startsWith('"use client"')) {
     throw new Error('dist/server.js must not start with "use client"')
   }
-  if (reactImport.test(code)) {
-    throw new Error(`${file} must not import react or react-dom`)
-  }
-  for (const match of code.matchAll(/from\s*['"](\.[^'"]+)['"]/g)) {
-    await assertServerSafe(resolve(dirname(file), match[1]), seen)
+  for (const match of code.matchAll(moduleSpecifier)) {
+    const specifier = match[1]
+    if (reactImport.test(specifier)) {
+      throw new Error(`${file} must not import ${specifier}`)
+    }
+    if (specifier.startsWith('.')) {
+      await assertServerSafe(resolve(dirname(file), specifier), { seen })
+    }
   }
 }
 
-await assertServerSafe(resolve(dist, 'server.js'))
+await assertServerSafe(serverEntry, { entry: true })
+
+// Resolve the public package subpath as consumers do, rather than relying only
+// on the expected dist filename. Avoid evaluating external CJS dependencies.
+const resolvedServerEntry = import.meta.resolve('@hskksk/markdoc-react/server')
+if (resolvedServerEntry !== pathToFileURL(serverEntry).href) {
+  throw new Error(`@hskksk/markdoc-react/server must resolve to ${serverEntry}`)
+}
+
+const serverTypes = await readFile(resolve(dist, 'server.d.ts'), 'utf8')
+if (/['"]react(?:-dom)?(?:\/[^'"]*)?['"]/.test(serverTypes)) {
+  throw new Error('dist/server.d.ts must not import react or react-dom')
+}
