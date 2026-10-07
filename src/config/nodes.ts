@@ -1,6 +1,9 @@
-import { Tag, nodes as defaultNodes, type Config, type Node, type RenderableTreeNodes, type Schema } from '@markdoc/markdoc'
+import Markdoc from '@markdoc/markdoc'
+import type { Config, Node, RenderableTreeNodes, Schema } from '@markdoc/markdoc'
 import { slugify } from '../slugify'
 import type { FenceTagMode } from './types'
+
+const { Tag, nodes: defaultNodes } = Markdoc
 
 const LITERAL_FENCE_LANGUAGES = new Set(['md', 'markdown', 'markdoc', 'mdoc'])
 

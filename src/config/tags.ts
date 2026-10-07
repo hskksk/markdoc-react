@@ -1,5 +1,8 @@
-import { Tag, type Config, type Node, type Schema } from '@markdoc/markdoc'
+import Markdoc from '@markdoc/markdoc'
+import type { Config, Node, Schema } from '@markdoc/markdoc'
 import { firstContentFence, resolveBlockSource } from './blockSource'
+
+const { Tag } = Markdoc
 
 export const callout: Schema = {
   render: 'Callout',
