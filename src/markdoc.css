@@ -392,6 +392,30 @@
   transition: background 120ms ease, transform 120ms ease;
 }
 
+.markdoc-minimap__segment[data-level='1'] .markdoc-minimap__button {
+  padding-inline-start: 0;
+}
+
+.markdoc-minimap__segment[data-level='2'] .markdoc-minimap__button {
+  padding-inline-start: 0.35rem;
+}
+
+.markdoc-minimap__segment[data-level='3'] .markdoc-minimap__button {
+  padding-inline-start: 0.7rem;
+}
+
+.markdoc-minimap__segment[data-level='4'] .markdoc-minimap__button {
+  padding-inline-start: 1.05rem;
+}
+
+.markdoc-minimap__segment[data-level='5'] .markdoc-minimap__button {
+  padding-inline-start: 1.4rem;
+}
+
+.markdoc-minimap__segment[data-level='6'] .markdoc-minimap__button {
+  padding-inline-start: 1.75rem;
+}
+
 .markdoc-minimap__segment[data-level='1'] .markdoc-minimap__bar {
   opacity: 1;
 }

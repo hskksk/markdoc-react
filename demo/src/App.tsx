@@ -23,11 +23,23 @@ const graphRenderer = createGraphRenderer({
 })
 
 const source = `
-# Chart & graph demo
+# Analytics playbook
 
-Sample data rendered with **echarts**, **vega-lite**, and **cytoscape**.
+This sample doc is intentionally **deep**: scroll the main column or use the minimap on the right to jump between sections. Labels come from the mock AI labeler (block kinds appear after the middle dot).
 
-## ECharts (monthly signups)
+{% callout type="tip" %}
+The minimap builds sections from headings only. More levels below mean more segments and clearer active-state changes while you scroll.
+{% /callout %}
+
+## 1. Growth metrics
+
+Product signups and retention snapshots for the last two quarters.
+
+### 1.1 Signup trend
+
+Monthly totals rendered with ECharts.
+
+#### January–June line chart
 
 {% chart engine="echarts" height="340" %}
 \`\`\`json
@@ -51,7 +63,23 @@ Sample data rendered with **echarts**, **vega-lite**, and **cytoscape**.
 \`\`\`
 {% /chart %}
 
-## Vega-Lite (category totals)
+### 1.2 Funnel notes
+
+{% details summary="How to read the chart" %}
+Hover points for exact values. The mock data is static; the minimap should still highlight this subsection when it scrolls into view.
+{% /details %}
+
+Paragraph filler so this section has height: teams often compare **week 4** against **week 1** when reviewing campaigns. Repeat the scroll test here—the active minimap row should move from the chart block to this heading cluster.
+
+## 2. Team allocation
+
+Where engineering hours went last sprint.
+
+### 2.1 Hours by team
+
+Vega-Lite bar chart.
+
+#### Docs, API, SDK, Support
 
 {% chart engine="vega-lite" height="320" %}
 \`\`\`json
@@ -76,7 +104,19 @@ Sample data rendered with **echarts**, **vega-lite**, and **cytoscape**.
 \`\`\`
 {% /chart %}
 
-## Cytoscape (service graph)
+### 2.2 Takeaways
+
+Support led hours this sprint. Scroll past this subsection before jumping to architecture—the minimap should list **at least eight** section rows when fully expanded.
+
+## 3. Runtime architecture
+
+How requests flow through production services.
+
+### 3.1 Service graph
+
+Cytoscape layout of the default topology.
+
+#### Nodes and edges
 
 {% graph engine="cytoscape" height="380" %}
 \`\`\`json
@@ -120,13 +160,40 @@ Sample data rendered with **echarts**, **vega-lite**, and **cytoscape**.
 }
 \`\`\`
 {% /graph %}
+
+### 3.2 Operations checklist
+
+{% callout type="warning" %}
+Click **Nodes and edges** in the minimap after scrolling to the top—you should land directly on the graph block.
+{% /callout %}
+
+## 4. Appendix
+
+### 4.1 Glossary
+
+Short definitions to add scroll depth.
+
+#### Minimap
+
+A parse-only outline rail; no transform pass required.
+
+#### MarkdocReader
+
+Wraps \`MarkdocView\` plus the minimap in a two-column layout.
+
+### 4.2 Changelog
+
+- Added hierarchical demo headings for minimap QA.
+- Kept chart and graph tags under nested \`h3\` / \`h4\` titles.
 `
 
 export function App() {
   return (
     <div className="demo-page">
-      <h1>@hskksk/markdoc-react — viz demo</h1>
-      <p className="demo-lede">Interactive samples from Markdoc tags (hover charts, pan/zoom the graph).</p>
+      <h1>@hskksk/markdoc-react — minimap + viz demo</h1>
+      <p className="demo-lede">
+        Deep Markdoc outline on the left (scroll inside the panel). Use the minimap to jump across h2–h4 sections; charts stay under nested headings.
+      </p>
       <MarkdocReader
         source={source}
         chartRenderer={chartRenderer}
