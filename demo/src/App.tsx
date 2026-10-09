@@ -2,13 +2,16 @@ import cytoscape from 'cytoscape'
 import * as echarts from 'echarts'
 import vegaEmbed from 'vega-embed'
 import {
-  MarkdocView,
+  MarkdocReader,
   createChartRenderer,
   createCytoscapeGraphHandler,
   createEChartsChartHandler,
   createGraphRenderer,
+  createMockMinimapLabeler,
   createVegaLiteChartHandler,
 } from '@hskksk/markdoc-react'
+
+const minimapLabeler = createMockMinimapLabeler()
 
 const chartRenderer = createChartRenderer({
   echarts: createEChartsChartHandler(echarts),
@@ -124,7 +127,13 @@ export function App() {
     <div className="demo-page">
       <h1>@hskksk/markdoc-react — viz demo</h1>
       <p className="demo-lede">Interactive samples from Markdoc tags (hover charts, pan/zoom the graph).</p>
-      <MarkdocView source={source} chartRenderer={chartRenderer} graphRenderer={graphRenderer} theme="dark" />
+      <MarkdocReader
+        source={source}
+        chartRenderer={chartRenderer}
+        graphRenderer={graphRenderer}
+        theme="dark"
+        minimap={{ labeler: minimapLabeler }}
+      />
     </div>
   )
 }
