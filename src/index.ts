@@ -1,5 +1,11 @@
 export { MarkdocView, type MarkdocViewProps } from './renderer/MarkdocView'
 
+export { MarkdocMinimap, type MarkdocMinimapProps } from './minimap/MarkdocMinimap'
+export { MarkdocReader, type MarkdocReaderProps } from './minimap/MarkdocReader'
+export { extractMinimapOutline } from './minimap/extractOutline'
+export { createMockMinimapLabeler } from './minimap/mockLabeler'
+export type { MinimapBlockKind, MinimapLabeler, MinimapOutline, MinimapSection } from './minimap/types'
+
 export { MarkdocProvider, useMarkdocRuntime, type MarkdocRuntime } from './context/MarkdocProvider'
 
 export { createMarkdocConfig } from './config/createConfig'
