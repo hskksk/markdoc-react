@@ -1,0 +1,82 @@
+name: Demo deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: hskksk/gh-actions/actions/setup-mise@v1
+
+      - name: Build library
+        run: pnpm install --frozen-lockfile && pnpm run build
+
+      - name: Build demo
+        env:
+          GITHUB_PAGES_REPOSITORY: ${{ github.event.repository.name }}
+        run: |
+          cd demo
+          pnpm install --ignore-workspace --frozen-lockfile
+          pnpm run build
+
+      - name: Move dist directory
+        run: mv demo/dist /tmp/demo-dist
+
+      - name: Save Pages workflow
+        run: cp .github/workflows/gh-pages.yml /tmp/gh-pages-workflow.yml
+
+      - name: Prepare gh-pages branch
+        run: |
+          git fetch origin gh-pages:gh-pages 2>/dev/null || true
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+            git pull --ff-only origin gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . 2>/dev/null || true
+          fi
+
+      - name: Preserve PR previews and clear other files
+        run: |
+          mkdir -p /tmp/preserve
+          find . -maxdepth 1 -type d -name 'pr-preview-*' -exec cp -r {} /tmp/preserve/ \;
+          if [ -d .github/workflows ]; then
+            mkdir -p /tmp/preserve/.github
+            cp -r .github/workflows /tmp/preserve/.github/
+          fi
+          git rm -rf .
+          git clean -fxd
+          shopt -s dotglob nullglob
+          mv /tmp/preserve/* . 2>/dev/null || true
+          shopt -u dotglob nullglob
+
+      - name: Copy new build
+        run: |
+          cp -r /tmp/demo-dist/* .
+          touch .nojekyll
+          mkdir -p .github/workflows
+          cp /tmp/gh-pages-workflow.yml .github/workflows/gh-pages.yml
+
+      - name: Commit changes to gh-pages
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git add -N .
+          set +e
+          git diff --exit-code --quiet
+          if [[ $? -eq 1 ]]; then
+            git add .
+            git commit -m "Deploy demo: ${{ github.sha }}"
+            git push origin gh-pages
+          fi

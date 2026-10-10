@@ -207,6 +207,34 @@ This package generalizes the Markdoc setup used by
 [`hskksk/podcaster`](https://github.com/hskksk/podcaster) and
 [`hskksk/opencode-manager`](https://github.com/hskksk/opencode-manager).
 
+## Demo site
+
+The interactive demo in [`demo/`](demo/) is published to GitHub Pages:
+
+- **Production:** [hskksk.github.io/markdoc-react](https://hskksk.github.io/markdoc-react/)
+- **Pull requests:** opening or updating a PR builds the demo under
+  `pr-preview-<number>/` and posts the preview URL in a comment (see
+  [this write-up](https://zenn.dev/cherr/articles/03bfb448f45920) for the
+  overall pattern).
+
+### One-time repository setup
+
+1. **Settings → Pages → Build and deployment:** set **Source** to **GitHub
+   Actions**.
+2. Allow the **`github-pages`** environment on first deploy (GitHub prompts
+   when `gh-pages.yml` runs).
+
+The `gh-pages` branch is created automatically on the first production or PR
+preview deploy. You do not need to add it by hand.
+
+### Local demo
+
+```bash
+pnpm install
+pnpm build
+cd demo && pnpm install --ignore-workspace && pnpm dev
+```
+
 ## Development
 
 ```bash
