@@ -3,14 +3,12 @@ import { defineConfig } from 'vite'
 
 function demoBase(): string {
   const repo = process.env.GITHUB_PAGES_REPOSITORY
-  if (
-    repo &&
-    process.env.IS_PREVIEW === 'true' &&
-    process.env.PR_NUMBER
-  ) {
+  if (!repo) return '/'
+
+  if (process.env.IS_PREVIEW === 'true' && process.env.PR_NUMBER) {
     return `/${repo}/dev/preview-${process.env.PR_NUMBER}/`
   }
-  return '/'
+  return `/${repo}/`
 }
 
 export default defineConfig({

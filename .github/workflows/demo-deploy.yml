@@ -1,0 +1,77 @@
+# Build demo/ from main and push to the gh-pages branch root.
+# Preserves dev/preview-* PR preview directories. See demo-preview.yml.
+name: Demo deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: hskksk/gh-actions/actions/setup-mise@v1
+
+      - name: Build library
+        run: pnpm install --frozen-lockfile && pnpm run build
+
+      - name: Build demo
+        env:
+          GITHUB_PAGES_REPOSITORY: ${{ github.event.repository.name }}
+        run: |
+          cd demo
+          pnpm install --ignore-workspace --frozen-lockfile
+          pnpm run build
+
+      - name: Move dist directory
+        run: mv demo/dist /tmp/demo-dist
+
+      - name: Prepare gh-pages branch
+        run: |
+          git fetch origin gh-pages:gh-pages 2>/dev/null || true
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+            git pull --ff-only origin gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . 2>/dev/null || true
+          fi
+
+      - name: Preserve PR previews and replace site root
+        run: |
+          mkdir -p /tmp/preserve
+          find . -maxdepth 1 -type d -name 'dev' -exec cp -r {} /tmp/preserve/ \;
+          git rm -rf .
+          git clean -fxd
+          shopt -s dotglob nullglob
+          if [ -d /tmp/preserve/dev ]; then
+            mkdir -p dev
+            for dir in /tmp/preserve/dev/preview-*; do
+              [ -d "$dir" ] || continue
+              cp -r "$dir" "dev/$(basename "$dir")"
+            done
+          fi
+          shopt -u dotglob nullglob
+          cp -r /tmp/demo-dist/* .
+          touch .nojekyll
+
+      - name: Commit and push gh-pages
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Deploy demo from main: ${{ github.sha }}"
+            git push origin gh-pages
+          fi
