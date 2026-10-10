@@ -223,18 +223,18 @@ The workflow posts that link in a PR comment. See
 [this write-up](https://zenn.dev/cherr/articles/03bfb448f45920) for the
 overall `gh-pages` + subdirectory pattern.
 
-### One-time repository setup
+### One-time repository setup (Deploy from a branch)
 
-1. **Settings → Pages → Build and deployment:** set **Source** to **Deploy from
-   a branch** (not GitHub Actions).
-2. **Branch:** `gh-pages`, folder **`/ (root)`**.
+1. Open **Settings → Pages → Build and deployment**.
+2. **Source:** **Deploy from a branch** (do not use GitHub Actions for Pages).
+3. **Branch:** `gh-pages`, folder **`/ (root)`**, then save.
 
-`demo-preview.yml` commits built files to `gh-pages`; GitHub Pages serves that
-branch. Using **GitHub Actions** as the Pages source will 404 until a deploy
-workflow on `main` runs—and the default `github-pages` environment blocks deploys
-from pull-request refs.
+`demo-preview.yml` only **pushes static files to the `gh-pages` branch**. GitHub
+Pages publishes that branch; there is no separate `deploy-pages` workflow.
 
-The `gh-pages` branch is created automatically on the first PR preview deploy.
+The `gh-pages` branch is created on the first PR preview deploy. After changing
+the Pages source, wait a minute or re-run the **Demo preview** workflow on an
+open PR so GitHub picks up the branch.
 
 ### Local demo
 

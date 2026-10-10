@@ -1,3 +1,5 @@
+# Build demo/ and push to the gh-pages branch (dev/preview-<PR>/).
+# Pages must use Settings → Pages → Deploy from a branch → gh-pages / (root).
 name: Demo preview
 
 on:
