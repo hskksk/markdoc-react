@@ -2,14 +2,10 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 function demoBase(): string {
-  const repo = process.env.GITHUB_PAGES_REPOSITORY
-  if (!repo) return '/'
-
-  const root = `/${repo}`
   if (process.env.IS_PREVIEW === 'true' && process.env.PR_NUMBER) {
-    return `${root}/pr-preview-${process.env.PR_NUMBER}/`
+    return `/dev/markdoc-react/preview-${process.env.PR_NUMBER}/`
   }
-  return `${root}/`
+  return '/'
 }
 
 export default defineConfig({

@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 env:
-  PAGE_DIR: pr-preview-${{ github.event.pull_request.number }}
+  PAGE_DIR: dev/markdoc-react/preview-${{ github.event.pull_request.number }}
 
 jobs:
   build-and-deploy:
@@ -28,7 +28,6 @@ jobs:
 
       - name: Build demo (preview)
         env:
-          GITHUB_PAGES_REPOSITORY: ${{ github.event.repository.name }}
           IS_PREVIEW: 'true'
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
@@ -74,7 +73,7 @@ jobs:
       - name: Comment PR
         uses: actions/github-script@v7
         env:
-          PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.PAGE_DIR }}/
+          PREVIEW_URL: https://${{ github.repository_owner }}.github.io/${{ env.PAGE_DIR }}/
         with:
           script: |
             const marker = '<!-- demo-preview -->'

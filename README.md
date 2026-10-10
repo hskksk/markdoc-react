@@ -207,15 +207,26 @@ This package generalizes the Markdoc setup used by
 [`hskksk/podcaster`](https://github.com/hskksk/podcaster) and
 [`hskksk/opencode-manager`](https://github.com/hskksk/opencode-manager).
 
-## Demo site
+## Demo site (PR previews only)
 
-The interactive demo in [`demo/`](demo/) is published to GitHub Pages:
+The interactive demo in [`demo/`](demo/) is deployed to GitHub Pages **only
+for pull requests**—there is no production demo URL on `main`.
 
-- **Production:** [hskksk.github.io/markdoc-react](https://hskksk.github.io/markdoc-react/)
-- **Pull requests:** opening or updating a PR builds the demo under
-  `pr-preview-<number>/` and posts the preview URL in a comment (see
-  [this write-up](https://zenn.dev/cherr/articles/03bfb448f45920) for the
-  overall pattern).
+Each PR is built under `dev/markdoc-react/preview-<number>/` on the `gh-pages`
+branch. With the user/org site root at `https://<owner>.github.io/`, the preview
+opens at:
+
+`https://<owner>.github.io/dev/markdoc-react/preview-<number>/`
+
+(for example `https://hskksk.github.io/dev/markdoc-react/preview-22/`). The
+workflow posts that link in a PR comment. See
+[this write-up](https://zenn.dev/cherr/articles/03bfb448f45920) for the
+overall `gh-pages` + subdirectory pattern.
+
+If Pages is configured only on this repository as a **project** site, URLs gain
+a `/<repo-name>/` prefix before `dev/…`. Point Pages at the `hskksk.github.io`
+user site (or mirror `dev/markdoc-react/` there) when you want the path above
+without the repo segment.
 
 ### One-time repository setup
 
@@ -224,8 +235,7 @@ The interactive demo in [`demo/`](demo/) is published to GitHub Pages:
 2. Allow the **`github-pages`** environment on first deploy (GitHub prompts
    when `gh-pages.yml` runs).
 
-The `gh-pages` branch is created automatically on the first production or PR
-preview deploy. You do not need to add it by hand.
+The `gh-pages` branch is created automatically on the first PR preview deploy.
 
 ### Local demo
 
