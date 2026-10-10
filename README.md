@@ -207,6 +207,46 @@ This package generalizes the Markdoc setup used by
 [`hskksk/podcaster`](https://github.com/hskksk/podcaster) and
 [`hskksk/opencode-manager`](https://github.com/hskksk/opencode-manager).
 
+## Demo site
+
+The interactive demo in [`demo/`](demo/) is published from the `gh-pages`
+branch (GitHub **project** Pages):
+
+| Trigger | Workflow | URL |
+| --- | --- | --- |
+| Push to `main` | `demo-deploy.yml` | `https://<owner>.github.io/<repo>/` |
+| Pull request | `demo-preview.yml` | `https://<owner>.github.io/<repo>/dev/preview-<number>/` |
+
+For example
+[https://hskksk.github.io/markdoc-react/](https://hskksk.github.io/markdoc-react/)
+and
+[https://hskksk.github.io/markdoc-react/dev/preview-22/](https://hskksk.github.io/markdoc-react/dev/preview-22/).
+PR previews are linked in a comment on the pull request. See
+[this write-up](https://zenn.dev/cherr/articles/03bfb448f45920) for the
+overall `gh-pages` + subdirectory pattern.
+
+### One-time repository setup (Deploy from a branch)
+
+1. Open **Settings → Pages → Build and deployment**.
+2. **Source:** **Deploy from a branch** (do not use GitHub Actions for Pages).
+3. **Branch:** `gh-pages`, folder **`/ (root)`**, then save.
+
+`demo-deploy.yml` and `demo-preview.yml` **push static files to the `gh-pages`
+branch**. GitHub Pages publishes that branch; there is no separate
+`deploy-pages` workflow.
+
+The `gh-pages` branch is created on the first deploy (from `main` or a PR).
+After changing the Pages source, wait a minute or re-run **Demo deploy** or
+**Demo preview** so GitHub picks up the branch.
+
+### Local demo
+
+```bash
+pnpm install
+pnpm build
+cd demo && pnpm install --ignore-workspace && pnpm dev
+```
+
 ## Development
 
 ```bash
