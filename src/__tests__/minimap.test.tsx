@@ -24,7 +24,7 @@ describe('extractMinimapOutline', () => {
 describe('MarkdocReader minimap', () => {
   it('matches rendered heading ids for navigation', () => {
     const source = '# Hello\n\n## Nested\n\nbody'
-    render(<MarkdocReader source={source} />)
+    render(<MarkdocReader source={source} minimapVariant="outline" />)
 
     const rendered = document.querySelector('#hello')
     expect(rendered).not.toBeNull()

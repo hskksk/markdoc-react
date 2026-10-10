@@ -1,7 +1,10 @@
 export { MarkdocView, type MarkdocViewProps } from './renderer/MarkdocView'
 
 export { MarkdocMinimap, type MarkdocMinimapProps } from './minimap/MarkdocMinimap'
-export { MarkdocReader, type MarkdocReaderProps } from './minimap/MarkdocReader'
+export { MarkdocReader, type MarkdocReaderProps, type MinimapVariant } from './minimap/MarkdocReader'
+export { MarkdocTreemap, type MarkdocTreemapProps, type TreemapMode, type TreemapTheme } from './treemap/MarkdocTreemap'
+export { mockTreemapAi } from './treemap/mockAi'
+export { mountTreemap, parseTreemapDocument, buildTreemapLinks, flattenTreemapNodes } from './treemap/legacyMount'
 export { extractMinimapOutline } from './minimap/extractOutline'
 export { createMockMinimapLabeler } from './minimap/mockLabeler'
 export type { MinimapBlockKind, MinimapLabeler, MinimapOutline, MinimapSection } from './minimap/types'
