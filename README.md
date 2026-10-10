@@ -225,13 +225,14 @@ overall `gh-pages` + subdirectory pattern.
 
 ### One-time repository setup
 
-1. **Settings → Pages → Build and deployment:** set **Source** to **GitHub
-   Actions**.
-2. Allow the **`github-pages`** environment on first deploy (GitHub prompts
-   when `demo-preview.yml` publishes the site).
+1. **Settings → Pages → Build and deployment:** set **Source** to **Deploy from
+   a branch** (not GitHub Actions).
+2. **Branch:** `gh-pages`, folder **`/ (root)`**.
 
-Previews are published from `demo-preview.yml` (not only by pushing `gh-pages`),
-so they work before this workflow lands on `main`.
+`demo-preview.yml` commits built files to `gh-pages`; GitHub Pages serves that
+branch. Using **GitHub Actions** as the Pages source will 404 until a deploy
+workflow on `main` runs—and the default `github-pages` environment blocks deploys
+from pull-request refs.
 
 The `gh-pages` branch is created automatically on the first PR preview deploy.
 
