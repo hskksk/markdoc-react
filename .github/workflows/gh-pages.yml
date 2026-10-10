@@ -1,8 +1,8 @@
 name: GitHub Pages
 
+# Redeploy the current gh-pages branch (recovery / manual). PR previews publish
+# from demo-preview.yml because workflow triggers only apply from the default branch.
 on:
-  push:
-    branches: [gh-pages]
   workflow_dispatch:
 
 permissions:
@@ -21,8 +21,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout gh-pages
         uses: actions/checkout@v4
+        with:
+          ref: gh-pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

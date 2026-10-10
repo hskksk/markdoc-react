@@ -7,6 +7,12 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 env:
   PAGE_DIR: dev/preview-${{ github.event.pull_request.number }}
@@ -15,6 +21,9 @@ jobs:
   build-and-deploy:
     if: github.event.action != 'closed'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,9 +48,6 @@ jobs:
       - name: Move dist directory
         run: mv demo/dist /tmp/demo-dist
 
-      - name: Save Pages workflow
-        run: cp .github/workflows/gh-pages.yml /tmp/gh-pages-workflow.yml
-
       - name: Prepare gh-pages branch
         run: |
           git fetch origin gh-pages:gh-pages 2>/dev/null || true
@@ -53,8 +59,6 @@ jobs:
             git rm -rf . 2>/dev/null || true
             touch .nojekyll
           fi
-          mkdir -p .github/workflows
-          cp /tmp/gh-pages-workflow.yml .github/workflows/gh-pages.yml
 
       - name: Commit preview to gh-pages
         run: |
@@ -63,13 +67,27 @@ jobs:
           rm -rf "${{ env.PAGE_DIR }}"
           mkdir -p "${{ env.PAGE_DIR }}"
           cp -r /tmp/demo-dist/* "${{ env.PAGE_DIR }}/"
-          git add .nojekyll .github/workflows/gh-pages.yml "${{ env.PAGE_DIR }}"
+          git add .nojekyll "${{ env.PAGE_DIR }}"
           if git diff --staged --quiet; then
-            echo "No changes to deploy"
+            echo "No file changes on gh-pages"
           else
             git commit -m "Deploy PR preview for #${{ github.event.pull_request.number }}"
-            git push origin gh-pages
           fi
+
+      - name: Push gh-pages
+        run: git push origin gh-pages
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Comment PR
         uses: actions/github-script@v7
@@ -104,6 +122,9 @@ jobs:
   cleanup:
     if: github.event.action == 'closed'
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -111,10 +132,12 @@ jobs:
           fetch-depth: 0
 
       - name: Remove preview directory
+        id: cleanup
         run: |
           git fetch origin gh-pages:gh-pages 2>/dev/null || exit 0
           if ! git show-ref --verify --quiet refs/heads/gh-pages; then
             echo "gh-pages branch does not exist; nothing to clean up"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git checkout gh-pages
@@ -125,7 +148,27 @@ jobs:
           git add -A
           if git diff --staged --quiet; then
             echo "Nothing to remove"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Remove PR preview for #${{ github.event.pull_request.number }}"
-            git push origin gh-pages
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Push gh-pages
+        if: steps.cleanup.outputs.changed == 'true'
+        run: git push origin gh-pages
+
+      - name: Setup Pages
+        if: steps.cleanup.outputs.changed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.cleanup.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        if: steps.cleanup.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
